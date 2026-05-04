@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BS Quiz — ZF Ultimate Dark Edition</title>
+<style>
+/* ── Reset & Scope ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; background: #0c0c18; }
+.qw {
+  --bg:      #0c0c18;
+  --s0:      #13132a;
+  --s1:      #1a1a35;
+  --acc:     #7c6cf0;
+  --acc2:    #a78bfa;
+  --text:    #ededff;
+  --muted:   #9a9ac8;
+  --ok:      #10b981;
+  --no:      #ef4444;
+  --bdr:     rgba(255,255,255,.07);
+  --r:       14px;
+  --rsm:     10px;
+  padding: 1.5rem;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at top, rgba(124,108,240,.13), transparent 32%), var(--bg);
+  min-height: 100vh;
+  color: var(--text);
+  max-width: 980px;
+  margin: 0 auto;
+}
+.hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 14px 20px;
+  background: linear-gradient(135deg,rgba(124,108,240,.14),rgba(167,139,250,.07));
+  border: 1px solid rgba(124,108,240,.22);
+  border-radius: var(--r);
+}
+.ttl {
+  font-size: 15px;
+  font-weight: 800;
+  background: linear-gradient(90deg,var(--acc2),var(--acc));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.sts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.st {
+  background: rgba(124,108,240,.11);
+  border: 1px solid rgba(124,108,240,.22);
+  border-radius: 30px;
+  padding: 4px 13px;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.st span { font-weight: 800; color: var(--acc2); }
+.cbar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.cb {
+  background: transparent;
+  border: 1px solid var(--bdr);
+  border-radius: 30px;
+  padding: 5px 13px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--muted);
+  font-family: inherit;
+  transition: all .18s ease;
+}
+.cb:hover:not(.all):not(.act) {
+  border-color: rgba(124,108,240,.4);
+  color: var(--acc2);
+  background: rgba(124,108,240,.07);
+}
+.cb.act {
+  background: rgba(124,108,240,.15);
+  border-color: rgba(124,108,240,.45);
+  color: var(--acc2);
+  font-weight: 700;
+}
+.cb.all {
+  background: linear-gradient(135deg,var(--acc),#6d28d9);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 14px rgba(124,108,240,.35);
+}
+.pb {
+  height: 4px;
+  background: rgba(255,255,255,.06);
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+.pf {
+  height: 100%;
+  background: linear-gradient(90deg,var(--acc),var(--acc2));
+  border-radius: 4px;
+  transition: width .45s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 0 10px rgba(124,108,240,.55);
+}
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,.018), transparent 40%), var(--s0);
+  border: 1px solid var(--bdr);
+  border-radius: var(--r);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 10px 48px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.02);
+  animation: su .22s cubic-bezier(.4,0,.2,1);
+}
+@keyframes su { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.badge {
+  display: inline-block;
+  background: linear-gradient(135deg,rgba(124,108,240,.2),rgba(167,139,250,.12));
+  border: 1px solid rgba(124,108,240,.3);
+  color: var(--acc2);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 11px;
+  border-radius: 30px;
+  margin-bottom: 14px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.q { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1.65; margin-bottom: 1.5rem; }
+.opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
+.opt {
+  background: rgba(255,255,255,.024);
+  border: 1px solid var(--bdr);
+  border-radius: var(--rsm);
+  padding: 11px 14px 11px 48px;
+  font-size: 13.5px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text);
+  transition: all .16s ease;
+  line-height: 1.5;
+  font-family: inherit;
+  position: relative;
+}
+.opt-l {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 23px;
+  height: 23px;
+  border-radius: 7px;
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(255,255,255,.09);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--muted);
+  transition: all .16s;
+}
+.opt:hover:not(:disabled) { border-color: rgba(124,108,240,.48); background: rgba(124,108,240,.07); transform: translateX(3px); }
+.opt:hover:not(:disabled) .opt-l { background: rgba(124,108,240,.18); border-color: rgba(124,108,240,.4); color: var(--acc2); }
+.opt.ok { background: rgba(16,185,129,.09); border-color: rgba(16,185,129,.45); color: #6ee7b7; transform: none; }
+.opt.ok .opt-l { background: rgba(16,185,129,.2); border-color: rgba(16,185,129,.4); color: #6ee7b7; }
+.opt.no { background: rgba(239,68,68,.07); border-color: rgba(239,68,68,.38); color: #fca5a5; }
+.opt.no .opt-l { background: rgba(239,68,68,.18); border-color: rgba(239,68,68,.38); color: #fca5a5; }
+.fb { padding: 12px 15px; border-radius: var(--rsm); font-size: 13px; line-height: 1.65; margin-bottom: 1rem; animation: su .18s ease; }
+.fb.ok { background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.22); border-left: 3px solid var(--ok); color: #86efac; }
+.fb.no { background: rgba(239,68,68,.06); border: 1px solid rgba(239,68,68,.18); border-left: 3px solid var(--no); color: #fca5a5; }
+.acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--bdr);
+  border-radius: var(--rsm);
+  padding: 10px 20px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all .16s;
+  font-family: inherit;
+  font-weight: 600;
+}
+.btn:hover { background: rgba(255,255,255,.08); color: var(--text); }
+.btn.p { background: linear-gradient(135deg,var(--acc),#6d28d9); border-color: transparent; color: #fff; font-weight: 800; box-shadow: 0 2px 18px rgba(124,108,240,.4); }
+.btn.p:hover { box-shadow: 0 4px 28px rgba(124,108,240,.6); transform: translateY(-1px); }
+.res { text-align: center; padding: 2.5rem 1rem; }
+.res-ring { margin: 0 auto 18px; display: block; }
+.rm { font-size: 15px; color: var(--muted); margin-bottom: 1.75rem; }
+.ms { margin-top: 1.75rem; text-align: left; }
+.ms h3 { font-size: 11px; font-weight: 800; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.mi {
+  background: rgba(239,68,68,.05);
+  border: 1px solid rgba(239,68,68,.14);
+  border-left: 3px solid rgba(239,68,68,.45);
+  border-radius: var(--rsm);
+  padding: 12px 14px;
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+.mi strong { color: var(--text); display: block; margin-bottom: 4px; font-size: 13px; }
+@media (max-width: 640px) {
+  .qw { padding: 1rem; }
+  .hdr { align-items: flex-start; flex-direction: column; }
+  .card { padding: 1.15rem; }
+  .q { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+<div class="qw">
+  <div class="hdr">
+    <div class="ttl">BS Quiz — Ultimate ZF Edition</div>
+    <div class="sts">
+      <div class="st">Richtig: <span id="sc">0</span></div>
+      <div class="st">Total: <span id="tc">0</span></div>
+    </div>
+  </div>
+  <div class="cbar" id="cb"></div>
+  <div class="pb"><div class="pf" id="pf" style="width:0%"></div></div>
+  <div id="qc"></div>
+</div>
+
+<script>
+const Q=[
+// KAP 1
+{k:"Kap 1",q:"Was ist ein Betriebssystem?",o:["Software die Komplexität versteckt & gemeinsamen Zugriff auf Ressourcen ermöglicht","Ein Prozessor der Befehle ausführt","Nur ein Dateiverwaltungsprogramm","Hardware die Software steuert"],a:0,e:"BS = Software die Komplexität versteckt (Nutzer/Programmierer müssen HW nicht kennen) und gemeinsamen sicheren Zugriff auf Rechen-, Speicher- & Kommunikationsmittel ermöglicht."},
+{k:"Kap 1",q:"Was sind die zwei großen Software-Kategorien?",o:["Systemprogramme (BS) & Anwendungsprogramme","Hardware & Software","Kernel & User-Space","Treiber & Compiler"],a:0,e:"Systemprogramme (=BS): Steuerprogramme, Übersetzer, Testhilfen, Dienstprogramme. Anwendungsprogramme: selbst erstellte Programme, Bibliotheksprogramme, Softwarepakete. Compiler = Systemprogramm, Untertyp: Übersetzer."},
+{k:"Kap 1",q:"Was ist der Unterschied zwischen physischen und logischen Kanälen?",o:["Physisch: Programm spricht HW direkt an — Logisch: BS sitzt als Vermittler dazwischen","Beide sind identisch","Logisch ist schneller","Physisch ist moderner"],a:0,e:"Ohne BS → physische Kanäle (Programm spricht HW direkt an). Mit BS → logische Kanäle (BS als Vermittler). Das Programm muss nicht wissen wie die HW funktioniert."},
+{k:"Kap 1",q:"Was bedeutet es dass das BS die Ressourcen virtualisiert?",o:["BS stellt jedem Programm so, als ob es die Ressource allein hätte","BS kauft mehr Hardware","BS löscht nicht benötigte Ressourcen","BS teilt Ressourcen gleichmäßig auf"],a:0,e:"Virtualisieren: das BS stellt jedem Programm so, als ob es die Ressource allein hätte — obwohl sich alle Programme den echten RAM teilen."},
+{k:"Kap 1",q:"Was gehört NICHT zum Betriebssystem?",o:["BIOS/UEFI, Compiler, Editor","Kernel, Treiber, Scheduler","Dateisystem, Speicherverwaltung","Prozessverwaltung, Scheduling"],a:0,e:"Zum BS gehört NICHT: BIOS/UEFI, Übersetzer (Compiler), Editor. BS verwaltet Ressourcen zur Laufzeit — alles davor/daneben gehört nicht dazu."},
+{k:"Kap 1",q:"Was ist der Unterschied zwischen Echtzeit-BS und PC-BS?",o:["RTOS muss Aufgaben in garantierter Zeit erledigen — PC-BS hat keine Zeitgarantie","RTOS ist schneller als PC-BS","PC-BS ist für Server, RTOS für Desktop","Beide sind identisch"],a:0,e:"RTOS: Pünktlichkeit ist Pflicht (Airbag muss im richtigen Moment auslösen, zu spät = Fehler). PC-BS: Pünktlichkeit ist nice-to-have (1 Sekunde Wartezeit ist ok)."},
+{k:"Kap 1",q:"Was sind die 2 Rollen des OS laut Silberschatz?",o:["Resource Allocator (Manager) & Control Program (Guard)","Kernel & User-Space","Scheduler & File Manager","Hardware & Software"],a:0,e:"OS hat 2 Rollen: Resource Allocator = Manager (wer bekommt was, effiziente & faire Zuteilung) und Control Program = Guard (verhindert Fehler und unsachgemäße Nutzung)."},
+{k:"Kap 1",q:"Was ist ein Systemcall und warum läuft er im Kernel-Space?",o:["Prozess fordert BS-Funktionalität an — Kernel-Space weil nur BS auf HW zugreifen darf","Benutzer ruft eine Funktion auf","Hardware sendet Signal an CPU","Prozess kommuniziert mit Prozess"],a:0,e:"Systemcall: Prozess fordert Funktionalität des BS an. Ablauf: User-Space → Systemcall → Kernel-Space (BS erledigt) → zurück zu Prozess. Im Kernel-Space weil Systemcalls direkt auf Hardware und geschützte Ressourcen zugreifen müssen — das darf nur das BS."},
+{k:"Kap 1",q:"Was ist der Unterschied zwischen Kernel-Space und User-Space?",o:["Kernel-Space: BS mit vollem HW-Zugriff — User-Space: Anwendungen eingeschränkt","Beide identisch","Kernel-Space ist für Nutzer","User-Space ist schneller"],a:0,e:"BS läuft im Kernel-Space (volle Kontrolle über HW). Prozesse laufen im User-Space (eingeschränkt). Nur so ist perfekter Schutz zwischen Prozessen möglich — funktioniert nur mit CPU-Unterstützung!"},
+{k:"Kap 1",q:"Was ist Unix und wie ist es entstanden?",o:["Abgespeckte Version von MULTICS — 2 Strömungen: AT&T & BSD — Linux vereint beide","Ein modernes Betriebssystem","Direkt von Microsoft entwickelt","Eine Version von Windows"],a:0,e:"MULTICS = erstes BS für mehrere gleichzeitige Nutzer. Abgespeckte Version → UNIX. 2 Strömungen: AT&T Unix (kommerziell) & BSD Unix (akademisch). Linux versucht beide Lager unter sich zu vereinen."},
+{k:"Kap 1",q:"Was sind die 4 Hauptaufgaben des BS?",o:["Abstraktion, Ressourcenverwaltung, API, Dateiverwaltung","Nur Scheduling und Paging","Nur CPU und RAM verwalten","Benutzer authentifizieren"],a:0,e:"4 Hauptaufgaben: 1. Abstraktion (HW-Komplexität verstecken) 2. Ressourcenverwaltung (CPU, Speicher zuteilen und wegnehmen!) 3. API (einheitliche Programmierschnittstelle) 4. Dateiverwaltung."},
+{k:"Kap 1",q:"Was sind die 5 Generationen von Betriebssystemen?",o:["1.Gen: Elektronenröhren — 2.Gen: Transistoren/Stapel — 3.Gen: ICs/Multiprogrammierung — 4.Gen: PCs — 5.Gen: Smartphones","Nur 3 Generationen","Nur Windows und Linux","Generationen existieren nicht"],a:0,e:"1.Gen (1945-55): Elektronenröhren, kein BS. 2.Gen (1955-65): Transistoren, Stapelverarbeitung, IBM. 3.Gen (1965-80): ICs, Multiprogrammierung, UNIX. 4.Gen (1980-heute): PCs, MS-DOS, Windows, Linux. 5.Gen (1990-heute): Smartphones, Android, iOS."},
+// KAP 2
+{k:"Kap 2",q:"Was ist ein Bus und welche 2 Arten gibt es?",o:["Gemeinsamer elektrischer Weg — Parallel (bytewise, veraltet) & Seriell (nacheinander, modern)","Nur seriell","Nur parallel","Ein Programm das Daten überträgt"],a:0,e:"Bus = gemeinsamer elektrischer Weg zur Datenübertragung. Parallel: bytewise über mehrere Leitungen gleichzeitig (veraltet, Beispiele: Parallel-ATA, ISA). Seriell: nacheinander über eine Leitung (modern, Beispiele: SATA, PCI-Express, USB 3.0, Thunderbolt). Merksatz: Parallel=breite Straße, Seriell=schmale Einbahnstraße (schneller!)."},
+{k:"Kap 2",q:"Was sind die Probleme bei paralleler Übertragung?",o:["Laufzeitunterschiede, verschiedene Pegel, hoher Leistungsverbrauch, große Steckverbinder","Nur zu langsam","Kein Nachteil","Zu teuer"],a:0,e:"Probleme parallel: Laufzeitunterschiede bei hohen Geschwindigkeiten, verschiedene Pegel, hoher Leistungsverbrauch, große Steckverbinder (teuer & fehleranfällig). Daher hat seriell gewonnen!"},
+{k:"Kap 2",q:"Was sind Adressbus, Datenbus und Steuerbus?",o:["Adressbus=Wohin? — Datenbus=Was? (bidirektional 8-512 Bit) — Steuerbus=Wann & Wie?","Alle übertragen dasselbe","Nur Datenbus überträgt Daten","Adressbus überträgt Daten"],a:0,e:"Adressbus: legt Adresse an (Wohin? Größe 8/16/32/64 Bit → bestimmt Adressraum). Datenbus: überträgt eigentliche Daten bidirektional 8-512 Bit (Was?). Steuerbus: koordiniert Zugriffe, steuert wann und wie Daten übertragen werden (Wann & Wie?)."},
+{k:"Kap 2",q:"Was passiert wenn 2 Geräte gleichzeitig über den Datenbus Daten senden?",o:["Es entsteht ein Buskonflikt — Zugriff muss koordiniert werden sodass immer nur ein Gerät den Bus nutzt","Nichts — beide können gleichzeitig senden","Das langsamere Gerät verliert","Der Bus wird gesperrt"],a:0,e:"Wenn 2 Geräte gleichzeitig senden entsteht ein Konflikt auf dem Bus. Daher muss der Zugriff koordiniert werden sodass immer nur ein Gerät den Bus nutzt. Der Speicher ist gemeinsam — deshalb muss der Zugriff koordiniert werden damit es keine Konflikte gibt."},
+{k:"Kap 2",q:"Was ist der Unterschied zwischen Harvard- und Von-Neumann-Architektur?",o:["Harvard: getrennte Speicher — Von Neumann: gemeinsamer Speicher für Daten & Befehle","Beide identisch","Von Neumann hat getrennte Speicher","Harvard ist moderner"],a:0,e:"Harvard: getrennte Speicher für Programm & Daten (Vertreter: Atmel AVR). Von Neumann: gemeinsamer Speicher (Vertreter: Intel x86). Nachteil Von Neumann: Programme und Daten nutzen denselben Speicher → Zugriffskonflikte & Leistungsverlust möglich."},
+{k:"Kap 2",q:"Was ist der Datenpfad im Von-Neumann-Rechner?",o:["Register mit ALU verbunden → Datenpfad über den Daten fließen — Aufgaben: Register auswählen, Daten zur ALU, Ergebnis zurück","Nur der Datenbus","Ein Netzwerk aus Kabeln","Der Weg der Befehle"],a:0,e:"Datenpfad: Register sind mit der ALU verbunden, dadurch entsteht ein Datenpfad über den Daten fließen. Aufgaben: Register auswählen, Daten zur ALU schicken, Ergebnis in Register zurückschreiben. Kern: der Datenpfad beschreibt den Weg der Daten innerhalb der CPU (Register↔ALU)."},
+{k:"Kap 2",q:"Woraus besteht die CPU und was sind die Spezialregister?",o:["ALU (Rechenoperationen), Control Unit (Steuerung), Register — Spezialregister: PC (nächster Befehl), IR (aktueller Befehl), Befehlsdecoder","Nur aus Transistoren","RAM + ROM + Kern","Nur aus Registern"],a:0,e:"CPU: ALU (führt Rechenoperationen aus), Control Unit/Steuerwerk (steuert Abarbeitung, kontrolliert Befehlszähler/register/decoder), Register (schnelle kleine Speicher). Spezialregister: Program Counter/IP (Adresse nächsten Befehls), Instruction Register (aktuellen Befehl), Befehlsdecoder (zerlegt in Schritte)."},
+{k:"Kap 2",q:"Was sind Flags (Bedingungscodes) und welche gibt es?",o:["Spezielle Bits nach jeder ALU-Operation — Z (Zero), N (Negative), V (Overflow), C (Carry)","Fehler-Indikatoren","Speicheradressen","Prozessidentifikatoren"],a:0,e:"Flags = spezielle Bits die nach jeder ALU-Operation gesetzt werden. Wichtig für Vergleiche und Sprungbefehle. Z (Zero): Ergebnis=0. N (Negative): Ergebnis negativ. V (Overflow): Überlauf. C (Carry): Übertrag. CPU nutzt Register zum Speichern/Verarbeiten von Daten und Flags zur Bewertung von Ergebnissen um das Programmverhalten zu steuern."},
+{k:"Kap 2",q:"Was sind die 6 Schritte bei der Ausführung von Mikroprozessoren?",o:["Fetch→Decode→Fetch Operands→Execute→Write Back→Nächste Instruktion","Decode→Fetch→Execute→Write Back","Execute→Fetch→Decode","Start→Run→Stop→Error→End→Restart"],a:0,e:"6 Schritte: 1.Instruction Fetch (CPU legt Adresse an Adressbus, Speicher gibt Befehl) 2.Decode (CPU entschlüsselt z.B. eor, r1, r2) 3.Fetch Operands (CPU holt Werte aus Registern) 4.Execute (ALU führt Operation aus) 5.Write Back (Ergebnis ins Register) 6.Nächste Instruktion (CU inkrementiert IP). Merkhilfe: Fick Dich Oder Entschuldigst Bitte Nie!"},
+{k:"Kap 2",q:"Was ist der ISA (Instruction Set Architecture)?",o:["Befehlssatz = Menge der elementaren Operationen eines Prozessors — Opcode identifiziert Befehl eindeutig","Das Betriebssystem","Ein Speichertyp","Ein Busnetzwerk"],a:0,e:"ISA = Instruction Set Architecture (Maschinensprache & Befehlssatz). Befehlssatz = Menge der elementaren Operationen die ein bestimmter Prozessor zur Verfügung stellt. Opcode = Bitfolge die den Befehl für den Prozessor eindeutig identifiziert."},
+{k:"Kap 2",q:"Was sind die 2 Hauptkategorien von Speicher?",o:["Arbeitsspeicher (RAM, flüchtig) & Sekundärspeicher (HDD/SSD, nicht flüchtig)","Nur RAM und ROM","Cache und Register","Primär und Tertiär"],a:0,e:"1. Arbeitsspeicher (RAM) = Random Access Memory, flüchtig → Daten weg wenn Strom weg. 2. Sekundärspeicher = Erweiterung des RAM, nicht flüchtig. HDD: Daten auf magnetisierbaren Scheiben. SSD: Halbleitertechnologie. Merksatz: RAM = schnell aber vergesslich, HDD/SSD = langsamer aber behält alles."},
+{k:"Kap 2",q:"Speicherhierarchie — von schnell nach langsam?",o:["Register (1ns) → Cache (2ns) → Arbeitsspeicher (10ns) → Magnetplatte (10ms) — Magnetplatte 1.000.000x langsamer als RAM","HDD am schnellsten","Cache am langsamsten","Alle gleich schnell"],a:0,e:"Von oben (schnell, teuer, klein) nach unten (langsam, günstig, groß): Register (1ns, <1KB) → Cache (2ns, 4MB) → Arbeitsspeicher (10ns, 1-8GB) → Magnetplatte (10ms, 1-4TB). Magnetplatte ist 1.000.000x langsamer als RAM! Je näher am Prozessor, desto schneller aber teurer und kleiner."},
+{k:"Kap 2",q:"Was ist Caching und der LRU-Algorithmus?",o:["Daten von langsamerem in schnelleren Speicher kopieren — LRU: bei vollem Cache Eintrag löschen der am wenigsten angefragt wurde","Daten komprimieren","Daten auslagern","Prozesse pausieren"],a:0,e:"Caching: Grundsatz = Daten von langsamerem in schnelleren Speicher kopieren. Gute Caches entkoppeln 90-95% der Zugriffe! LRU (Least Recently Used): jeder neue Wert im Cache gespeichert. Cache voll → lösche Eintrag der am wenigsten angefragt wurde."},
+{k:"Kap 2",q:"Was ist der Unterschied zwischen L1, L2 und L3 Cache?",o:["L1: direkt im Kern (schnellster, kleinster) — L2: pro Kern oder geteilt — L3: alle Kerne gemeinsam (größter, langsamster)","Alle identisch","L3 am schnellsten","L1 am größten"],a:0,e:"L1: direkt im Kern, schnellster & kleinster. L2: entweder pro Kern (separat) ODER gemeinsam für alle Kerne, größer aber langsamer als L1. L3: von allen Kernen gemeinsam genutzt, größter aber langsamster Cache. 2 Varianten bei Mehrkernprozessoren: a) alle Kerne teilen L2 + jeder eigenen L1. b) jeder Kern hat eigenen L2 + L1."},
+{k:"Kap 2",q:"Was sind die 3 Arten von Ein-/Ausgabevorgängen?",o:["Polling (programmgesteuert), Interrupt-gesteuert, DMA (Direct Memory Access)","Nur Polling und Interrupt","Nur DMA","Serial, Parallel, Wireless"],a:0,e:"1. Polling: CPU prüft ständig in Schleife ob Daten bereit → unnötige Wartezeiten. 2. Interrupt: Gerät sendet Signal → CPU unterbrochen → Interrupt-Service-Routine. 3. DMA: Datenübertragung ohne CPU → Controller übernimmt Transfer, CPU wird entlastet!"},
+{k:"Kap 2",q:"Was sind die Eigenschaften einer HDD?",o:["Magnetisch, nicht-flüchtig, 100x günstiger als RAM, blockbasiert — Spur, Sektor, Block, Cluster","Schneller als RAM","Flüchtig","Gleich teuer wie RAM"],a:0,e:"HDD: Magnetischer nicht-flüchtiger Speicher. 100x günstiger als RAM. Blockbasiert → immer nur ganze Blöcke/Sektoren lesen und schreiben. Organisation: Spur (Zylinder)=Ring auf Scheibe, Sektor=Tortenstück, Block=kleinste adressierbare Einheit, Cluster=mehrere Blöcke zusammen."},
+// KAP 3
+{k:"Kap 3",q:"Was ist der Unterschied zwischen block- und zeichenorientierten Geräten?",o:["Block: feste Blockgröße, adressierbar (HDD, USB) — Zeichen: Datenstrom, nicht adressierbar (Maus, Drucker)","Beide identisch","Zeichengeräte schneller","Blockgeräte kein Puffer"],a:0,e:"Blockorientiert: Daten in Einheiten fester Blockgröße, Blöcke einzeln adressierbar (HDD, DVD, USB-Stick). Zeichenorientiert: Datenstrom, nicht adressierbar (Maus, Drucker, Netzwerkkarte)."},
+{k:"Kap 3",q:"Was ist ein Controller und seine Aufgaben?",o:["Elektrische Gerätesteuereinheit — Befehle senden, Datenstrom steuern, seriell→Bytes konvertieren, Fehlerkorrektur, Puffer","Ein Programm","Ein Speichermodul","Ein Prozessor"],a:0,e:"Controller = elektrische Gerätesteuereinheit. Aufgaben: Befehle an Gerät senden, Datenstrom steuern, seriellen Bitstrom in Byteblöcke konvertieren, Fehlerkorrekturen durchführen, Puffer sammeln."},
+{k:"Kap 3",q:"Was ist ein Gerätetreiber und seine 3 Aufgaben?",o:["Geräteabhängige Steuersoftware vom Hersteller — 3 Aufgaben: Lese-/Schreibbefehle, HW initialisieren, Energie-/Fehler-/Ereignisverwaltung","Ein Benutzer der Gerät bedient","Hardware","Ein Netzwerkprotokoll"],a:0,e:"Treiber = geräteabhängige Steuersoftware, vom Gerätehersteller programmiert. Muss im OS-Kernel laufen um auf Hardware-Register des Controllers zugreifen zu können. 3 Aufgaben: Lese-/Schreibbefehle ausführen, Hardware initialisieren, Energie-/Fehler-/Ereignisverwaltung."},
+{k:"Kap 3",q:"Was ist ein Interrupt und beschreibe den Ablauf?",o:["Vorübergehende Unterbrechung — Gerät sendet Signal → Interrupt-Controller priorisiert → CPU sucht in IVT → Handler → Thread fortgesetzt","CPU prüft ständig","Prozess wird beendet","Nur 2 Schritte"],a:0,e:"Interrupt = vorübergehende Unterbrechung eines laufenden Programms durch Ereignis. Ablauf: Gerät sendet Signal → Interrupt-Controller entscheidet Reihenfolge & Priorität → CPU sucht in IVT → Interrupt-Handler (Assembler-Code) ausgeführt → ursprünglicher Thread fortgesetzt."},
+{k:"Kap 3",q:"Was sind die 3 Quellen eines Interrupts?",o:["Hardware (Gerät→Prozessor), Prozessor (Prozessor→Prozessor), Software (Unterbrechungsanweisung)","Nur Hardware und Software","Nur Prozessor","Tastatur, Maus, Netzwerk"],a:0,e:"3 Quellen: 1. Hardware: Unterbrechungsanforderung von Gerät an Prozessor. 2. Prozessor: Unterbrechungsanforderung von Prozessor an Prozessor. 3. Software: Unterbrechungsanweisung einer Software die der Prozessor lädt."},
+{k:"Kap 3",q:"Was ist RAID und was ist ein Stripe?",o:["Redundant Array of Independent Disks — Stripe: Zusammenschluss mehrerer physikalischer Sektoren zu logischer Einheit","Ein Dateisystem","Ein Backup-Programm","Ein Verschlüsselungsverfahren"],a:0,e:"RAID = Redundant Array of Independent Disks. Mehrere physische Festplatten zu einer logischen Einheit. Stripe = Zusammenschluss mehrerer physikalischer Sektoren zu einer logischen Einheit. Vorteile: Datensicherung durch Redundanz + schnellerer Festplattenzugriff."},
+{k:"Kap 3",q:"Was ist der Unterschied zwischen RAID 0, 1, 4, 5 und 6?",o:["RAID 0: kein Schutz — RAID 1: Mirroring — RAID 4: dedizierte Paritätsplatte (Flaschenhals!) — RAID 5: verteilte Parität — RAID 6: zweifach verteilte Parität","Alle identisch","RAID 0 sicherer als RAID 5","RAID 4 hat keine Parität"],a:0,e:"RAID 0: Striping ohne Redundanz (schnell, kein Schutz). RAID 1: Striping mit Mirroring (sicherster, 50% Speicheroverhead). RAID 4: dedizierte Paritätsplatte → Flaschenhals bei JEDEM Schreibvorgang! RAID 5: Parität verteilt auf alle Platten (gute Balance, 1 Ausfall tolerierbar). RAID 6: wie RAID 5 aber 2 gleichzeitige Ausfälle tolerierbar."},
+{k:"Kap 3",q:"Was ist Parität bei RAID und wie wird sie realisiert?",o:["Redundanzinformation zur Fehlerkorrektur — durch XOR-Funktion realisiert — XOR ist umkehrbar: mit 2 der 3 Werte kann man immer den 3. rekonstruieren","Eine Art Backup","Mehrfaches Speichern","Kompression"],a:0,e:"Parität = Redundanzinformation zur Fehlerkorrektur. Wird durch XOR-Funktion realisiert. XOR-Regel: gleiche Bits→0, verschiedene Bits→1. Beispiel: 75 (01001011) XOR 23 (00010111) = 92 (01011100). XOR ist umkehrbar — mit 2 der 3 Werte kann man immer den 3. rekonstruieren! Verwendet in RAID 4, 5, 6."},
+{k:"Kap 3",q:"Wie lautet der RAID-Vergleich kurz zusammengefasst?",o:["RAID-0: schnellster, kein Schutz — RAID-1: sicherster, 50% Overhead — RAID-5: Balance Performance/Sicherheit, 1 Ausfall — RAID-6: wie RAID-5 aber 2 Ausfälle tolerierbar","Alle gleich gut","RAID-0 sicherster","RAID-1 schnellster"],a:0,e:"Kurz: RAID-0 → schnellster, aber kein Schutz. RAID-1 → sicherster (Mirroring), aber 50% Speicheroverhead. RAID-5 → gute Balance zwischen Performance & Sicherheit, 1 Ausfall tolerierbar. RAID-6 → wie RAID-5 aber 2 gleichzeitige Ausfälle tolerierbar."},
+// KAP 4
+{k:"Kap 4",q:"Was ist ein Prozess?",o:["Abstraktion eines laufenden Programms — Behälter mit Register, Dateien, Zustand","Statisches Programm auf Festplatte","Ein Thread der Daten teilt","Ein BS-Dienst"],a:0,e:"Prozess = Abstraktion eines laufenden Programms. Behälter mit: Adressraum, globalen Variablen, geöffneten Dateien, Kindprozessen, Signalen. Merksatz: Programm=statisch auf Disk, Prozess=läuft inkl. aktuellem Zustand."},
+{k:"Kap 4",q:"Aus welchen 3 Segmenten besteht ein Prozess?",o:["Text (Code), Daten (wächst nach oben), Stack (wächst nach unten)","Nur Code und Daten","RAM, ROM, Cache","Kernel, User, System"],a:0,e:"3 Segmente: Text-Segment (Programmcode). Daten-Segment (Variablen, wächst nach oben). Stack-Segment (Funktionsaufrufe, wächst nach unten)."},
+{k:"Kap 4",q:"Was ist die Prozesstabelle und der PCB?",o:["Prozesstabelle = Array aller Prozesse — PCB/Task Control Block = Eintrag mit allen Infos für korrekte Wiederaufnahme","Nur eine Liste","Ein Dateisystem","Ein Scheduler"],a:0,e:"Prozesstabelle = Array aller Prozesse. Pro Prozess ein Eintrag = PCB (Process Control Block / Task Control Block). PCB speichert: Register, Befehlszähler, Prozesszustand, Priorität, Prozess-ID, Elternprozess, Speicherbereiche, Dateizugriffe → damit unterbrochene Prozesse jederzeit fehlerfrei wieder aufgenommen werden können."},
+{k:"Kap 4",q:"Welche 3 Kategorien enthält der PCB?",o:["Prozessverwaltung (Register, ID, Priorität), Speicherverwaltung (Zeiger auf Segmente), Dateiverwaltung (Verzeichnisse, Rechte)","Nur Prozesszustand","Nur Speicheradressen","Nur Dateien"],a:0,e:"PCB hat 3 Kategorien: Prozessverwaltung (Register, Befehlszähler, Prozesszustand, Priorität, Scheduling-Parameter, Prozess-ID, Elternprozess). Speicherverwaltung (Zeiger auf Text-, Daten-, Stacksegment). Dateiverwaltung (Wurzelverzeichnis, Arbeitsverzeichnis, Dateideskriptor, Benutzer-ID, Gruppen-ID)."},
+{k:"Kap 4",q:"Welche 3 Prozesszustände gibt es nach Tanenbaum?",o:["Rechnend (wird ausgeführt), Rechenbereit (wartet auf CPU), Blockiert (wartet auf Ereignis) — 4 Übergänge","Nur 2 Zustände","5 Zustände","New, Ready, Running, Waiting, Terminated"],a:0,e:"Nach Tanenbaum: Rechnend (CPU führt aus), Rechenbereit (könnte laufen, wartet auf CPU), Blockiert (wartet auf externes Ereignis). 4 Übergänge: 1.Rechnend→Blockiert (wartet auf Eingabe) 2.Rechnend→Rechenbereit (Scheduler wählt anderen) 3.Rechenbereit→Rechnend (Scheduler wählt diesen) 4.Blockiert→Rechenbereit (Eingabe vorhanden)."},
+{k:"Kap 4",q:"Welche 5 Prozesszustände gibt es nach Silberschatz?",o:["New, Ready, Running, Waiting, Terminated — Waiting→Running geht NICHT direkt!","Nur 3 Zustände","Rechnend, Rechenbereit, Blockiert","Start, Aktiv, Ende"],a:0,e:"Nach Silberschatz: New (wird erstellt), Ready (wartet auf CPU), Running (wird ausgeführt), Waiting (wartet auf Ereignis wie I/O), Terminated (beendet). WICHTIG: Waiting→Running geht NICHT direkt — erst Waiting→Ready→Running!"},
+{k:"Kap 4",q:"Was ist Multiprogrammierung?",o:["Prozesse laufen quasiparallel — CPU wechselt schnell, zu jedem Zeitpunkt nur 1 aktiv","Mehrere CPUs gleichzeitig","Mehrere Programme auf verschiedenen Computern","Echt parallele Ausführung"],a:0,e:"Multiprogrammierung: Prozesse laufen quasiparallel — CPU wechselt sehr schnell zwischen Prozessen hin und her. Zu jedem Zeitpunkt ist immer nur EIN Programm aktiv! Es wirkt nur parallel. Echt parallel = mehrere CPUs laufen wirklich gleichzeitig."},
+{k:"Kap 4",q:"Was ist ein Thread und was sind Elemente pro Prozess vs. pro Thread?",o:["Prozess: Adressraum, globale Variable, Dateien, Kindprozesse, Signale — Thread: Befehlszähler, Register, Stack, Zustand","Beide identisch","Thread hat mehr Elemente","Prozess hat nur Stack"],a:0,e:"Thread = parallele Einheit die Adressraum & Daten teilt. Elemente pro Prozess (geteilt): Adressraum, globale Variable, geöffnete Dateien, Kindprozesse, ausstehende Signale, Signale & Signalroutinen, Verwaltungsinformationen. Elemente pro Thread (eigen): Befehlszähler, Register, Stack, Zustand. Merksatz: Prozess=Behälter (geteilt), Thread=Arbeiter (hat eigenes)."},
+{k:"Kap 4",q:"Was ist Multithreading und seine typische Anwendung?",o:["Ein Prozess mit mehreren Threads — typisch: Ein-/Ausgabe vom Kernprozess entkoppeln","Mehrere Prozesse je ein Thread","CPU schnell wechseln","Parallele Prozessoren"],a:0,e:"Multithreading = ein Prozess mit mehreren Threads. Typische Anwendung: Ein-/Ausgabe vom Kernprozess entkoppeln (z.B. Textverarbeitungsprogramm mit 3 Threads: Tastatur lesen, Festplatte schreiben, Verarbeitung). Jeder Thread hat eigenen Stack!"},
+{k:"Kap 4",q:"Was ist ein Dispatcher-Thread?",o:["Weckt bei neuen Anfragen freie Worker-Threads (Zustand: blockiert) und übergibt Anfrage","Verteilt CPU-Zeit","Schreibt Daten auf Festplatte","Verwaltet Arbeitsspeicher"],a:0,e:"Dispatcher-Thread: bei neu ankommenden Anfragen an den Webserver weckt der Dispatcher einen freien Prozess (Zustand 'blockiert') und übergibt die Anfrage an diesen Thread. Worker-Thread bearbeitet die Anfrage. Beide teilen den Webseiten-Cache."},
+// KAP 5
+{k:"Kap 5",q:"Was ist ein Kindprozess und warum braucht man Interprozesskommunikation?",o:["Kindprozess = von anderem Prozess erzeugt — IPC notwendig weil Prozesse andere erzeugen können und kommunizieren müssen","Kindprozesse sind identisch mit Prozessen","IPC ist nicht notwendig","Kindprozesse teilen nichts"],a:0,e:"Kindprozess = Prozess der von einem anderen Prozess erzeugt wurde. Prozesse können andere Prozesse erzeugen → dadurch entsteht ein Prozessbaum. Interprozesskommunikation (IPC) ist notwendig weil Prozesse miteinander kommunizieren müssen."},
+{k:"Kap 5",q:"Was ist eine Race Condition?",o:["Zwei Prozesse lesen/schreiben gemeinsamen Speicher — Ergebnis hängt von Ausführungsreihenfolge ab","Wettbewerb um CPU","Fehler bei hoher Last","Synchronisationsmethode"],a:0,e:"Race Condition: Situationen in denen zwei oder mehr Prozesse einen gemeinsamen Speicher lesen oder beschreiben und das Endergebnis davon abhängt wer wann genau läuft. Vermeiden durch wechselseitigen Ausschluss."},
+{k:"Kap 5",q:"Was ist ein Deadlock?",o:["Jeder Prozess wartet auf Ereignis das nur ein anderer aus der Menge auslösen kann","Ein Programmabsturz","Eine Race Condition","Zu viel CPU-Verbrauch"],a:0,e:"Deadlock: Eine Menge von Prozessen befindet sich im Deadlock wenn jeder Prozess auf ein Ereignis wartet das nur ein anderer Prozess aus der Menge auslösen kann → niemand kommt weiter."},
+{k:"Kap 5",q:"Was ist wechselseitiger Ausschluss und wie in Java?",o:["Kritische Regionen nur von einem Prozess zur gleichen Zeit — Java: synchronized","Prozesse dürfen nie kommunizieren","Threads teilen nichts","Prozesse abwechselnd"],a:0,e:"Wechselseitiger Ausschluss = kritische Regionen dürfen nur von EINEM Prozess zur gleichen Zeit betreten werden. Java: Schlüsselwort synchronized definiert kritischen Abschnitt. Kein anderer Thread darf eine andere synchronized-Methode auf demselben Objekt ausführen."},
+{k:"Kap 5",q:"Was ist aktives vs. passives Warten?",o:["Aktiv: Prozess prüft ständig Variable turn (ineffizient) — Passiv: Prozess wird geweckt wenn nötig (effizienter)","Aktiv ist effizienter","Beide gleich","Passiv prüft ständig"],a:0,e:"Aktives Warten (Busy Waiting): Prozess prüft ständig Variable 'turn' ob er eintreten darf → löst Problem prinzipiell aber kostet Performanz (ständiges Prüfen der Variable turn kostet Performanz). Passives Warten: Prozess wird geweckt wenn Ereignis eintritt → effizienter!"},
+{k:"Kap 5",q:"Was ist ein Monitor und aus welchen 4 Java-Klassen besteht die Lösung?",o:["Programmiersprachenkonstrukt — Java: ProducerConsumer, producer, consumer, our_monitor (synchronized)","Hardware-Gerät","Scheduling-Algorithmus","Nur eine Klasse"],a:0,e:"Monitor = Programmiersprachenkonstrukt das wechselseitigen Ausschluss unterstützt, nur ein Prozess aktiv. Java-Lösung Erzeuger-Verbraucher: ProducerConsumer (erzeugt & startet Threads), producer (Erzeuger-Code), consumer (Verbraucher-Code), our_monitor (Monitor mit synchronized Methoden für Einfügen & Entnehmen)."},
+{k:"Kap 5",q:"Was ist das Philosophenproblem und wann entsteht Deadlock?",o:["5 Philosophen & 5 Gabeln — Deadlock wenn alle gleichzeitig linke Gabel nehmen → jeder wartet auf rechte des Nachbarn","Wenn ein Philosoph zu lange isst","Wenn 2 gleichzeitig essen","Niemals"],a:0,e:"5 Philosophen & 5 Gabeln. Jeder braucht 2 Gabeln. Nimmt zuerst links, dann rechts. Deadlock wenn alle 5 gleichzeitig hungrig sind und jeder die linke Gabel nimmt → jeder wartet auf rechte des Nachbarn → niemand kann essen!"},
+{k:"Kap 5",q:"Was ist CPM und wie berechnet man den Critical Path?",o:["Verfahren aus Projektplanung — Forward Calculation: EST=max(EFT Vorgänger), EFT=EST+Dauer — Critical Path hat Slack=0","Ein Scheduling-Algorithmus","Eine Programmiersprache","Ein Dateisystem"],a:0,e:"CPM (Critical Path Method) = Verfahren aus Projektplanung zur Optimierung nebenläufiger Prozesse. Forward Calculation: EST=max(EFT aller Vorgänger), EFT=EST+Dauer. WICHTIG: mehrere Vorgänger → MAXIMUM nehmen! Critical Path = längster Pfad, alle Knoten haben Slack=0. Slack = LST-EST = LFT-EFT."},
+{k:"Kap 5",q:"Welche Eigenschaft muss ein Graph haben damit kein Deadlock entsteht?",o:["Darf keinen Zyklus enthalten — muss DAG (Directed Acyclic Graph) sein — Kante A→B bedeutet 'B wartet auf A'","Muss Baum sein","Vollständig verbunden","Weniger als 5 Knoten"],a:0,e:"Deadlock im Graph = Zyklus (A→B→C→A). Kein Deadlock wenn: kein Zyklus → Graph ist DAG (Directed Acyclic Graph). Kante A→B bedeutet 'B wartet auf A'. Zusammenhängender Graph ohne Deadlock aber kein Baum: möglich wenn kein Zyklus aber Knoten mehrere ausgehende Kanten hat."},
+// KAP 6
+{k:"Kap 6",q:"Was ist Time-Slicing und Scheduling?",o:["CPU fair an Tasks verteilt in gleiche Einheiten — Zuordnung heißt Scheduling, Algorithmus heißt Scheduler","RAM aufteilen","Festplatte partitionieren","Netzwerkbandbreite verteilen"],a:0,e:"Ein präemptives Multi-Tasking OS virtualisiert die CPU. Jedes Programm denkt es hat die CPU allein. Aber das OS kann sie jederzeit wegnehmen! Verfahren: Time-Slicing & Scheduling. Scheduler = Algorithmus der zuteilt."},
+{k:"Kap 6",q:"Welche Time-Slicing Frequenzen gibt es und Vor/Nachteile?",o:["100Hz (Desktop), 1000Hz (Server/Audio), Variabel (Laptop) — Hoch: bessere Reaktionszeit aber mehr Overhead — Niedrig: effizienter aber träge","Nur 50Hz und 100Hz","Immer 1000Hz","Immer variabel"],a:0,e:"100 Hz: Desktop — guter Kompromiss. 1000 Hz: Server mit vielen Tausend Prozessen & Audioverarbeitung. Variabel: Laptop / numerische Datenverarbeitung. Hoch: Vorteil: bessere Reaktionszeit. Nachteil: mehr Overhead durch Kontextwechsel. Niedrig: Vorteil: weniger Overhead. Nachteil: Programme wirken träge."},
+{k:"Kap 6",q:"Was sind die 3 Grundkriterien und 6 Messgrößen beim Scheduling?",o:["Grundkrit.: Effizienz, Fairness, Balance — Messgrößen: Durchsatz, Durchlaufzeit, CPU-Auslastung, Antwortzeit, Deadlines, Vorhersagbarkeit","Nur Geschwindigkeit","Nur Fairness","Nur CPU-Auslastung"],a:0,e:"3 Grundkriterien: Effizienz (CPU 100% sinnvoll nutzen), Fairness (gleichmäßig verteilen), Balance (alle Ressourcen auslasten). 6 Messgrößen: Durchsatz, Durchlaufzeit, CPU-Auslastung, Antwortzeit, Deadlines einhalten, Vorhersagbarkeit."},
+{k:"Kap 6",q:"Was sind die 5 Scheduling-Verfahren mit Vor/Nachteilen?",o:["FCFS (einfach, große Wartezeiten), FIFO+Prio (faire Verteilung), SJF (optimal für Wartezeit, nur Batch), Round-Robin (gleichmäßig, situationsabhängig), Fair-Share (pro User, aufwändig)","Nur FCFS und Round-Robin","Nur Priorität-basiert","Nur Round-Robin"],a:0,e:"FCFS: Ankunftsreihenfolge ohne Unterbrechung, einfach aber große Wartezeiten. FIFO+Priorität: I/O=hohe, CPU=niedrige Prio, faire Verteilung. SJF: kürzester zuerst, optimal aber nur Batch. Round-Robin: Time-Slice, nicht fertig→ans Ende, gleichmäßig. Fair-Share: CPU pro User nicht pro Prozess, aufwändig."},
+{k:"Kap 6",q:"Was ist FAT32 und wie speichert es Dateien?",o:["File Allocation Table seit 1981 — als verkettete Cluster — Directory enthält Startcluster — jeder Cluster zeigt auf nächsten","Ein modernes Linux-Dateisystem","Dateien sequenziell gespeichert","Nur für USB-Sticks"],a:0,e:"FAT = File Allocation Table. Ältestes noch gebräuchliches Dateisystem seit 1981. Dateien als verkettete Cluster gespeichert. Directory enthält Startcluster → jeder Cluster zeigt auf nächsten (wie Schnitzeljagd). Cluster = Gruppe von Sektoren (z.B. 8×512 Bytes = 4096 Bytes). FAT32 speichert immer mindestens einen ganzen Cluster!"},
+{k:"Kap 6",q:"Was passiert beim Löschen einer Datei in FAT32?",o:["Directory-Eintrag markiert, Cluster als frei markiert — Daten physisch noch vorhanden bis überschrieben!","Daten sofort gelöscht","In Papierkorb","Cluster sofort überschrieben"],a:0,e:"Löschen in FAT32: Erstes Zeichen des Directory-Eintrags wird überschrieben (markiert). Cluster werden als frei markiert. WICHTIG: Daten sind physisch noch vorhanden bis neuer Cluster sie überschreibt → forensisch relevant! Datei vergrößern: nächster freier Cluster wird angehängt und verkettet."},
+{k:"Kap 6",q:"Was sind die 12 Anforderungen an ein Dateisystem?",o:["Dateinamen 255 Zeichen, Unterverzeichnisse, Dateisystem-/Dateigröße, Groß/Kleinschreibung, Rechte, Zeiten, Versionierung, Journaling, Checksummen, Verschlüsselung, Zugriffsbeschränkungen","Nur Speichern und Lesen","Nur Verschlüsselung","Nur Dateigröße"],a:0,e:"12 Anforderungen: Dateinamen bis 255 Zeichen, Unterverzeichnisse (hierarchisch), große Dateisystemgröße (z.B. ZFS bis 512YB), große Dateigröße, Groß-/Kleinschreibung, Besitzer-/Gruppenrechte, Zeiten, Versionierung, Journaling (Rekonstruktion bei Fehler), Checksummen, Verschlüsselung, Zugriffsbeschränkungen."},
+{k:"Kap 6",q:"Was ist Paging und virtueller Speicher?",o:["Paging: nicht benötigte Prozessteile auf Festplatte auslagern — Virtueller Speicher: Prozess denkt er hat lückenlosen Speicher allein","Eine Art Cache","Ein Dateisystem","Ein Scheduling-Algorithmus"],a:0,e:"Virtueller Speicher = Speichereinheit die nicht physisch existiert, sich aber wie eine physische verhält. Aus Sicht eines Prozesses wird ein lückenloser Speicherbereich zur Verfügung gestellt. Paging: nicht benötigte Teile auf Festplatte auslagern. Basiert auf Memory Pages (z.B. 2KB)."},
+{k:"Kap 6",q:"Was ist das Relokationsproblem und die Lösung?",o:["Programme nutzen absolute Adressen — Lösung: Basisregister (Beginn) + Limitregister (Länge) — jede Adresse wird automatisch um Basisregister ergänzt","Zu wenig Speicher","Prozesse stören sich","Nur mehr RAM"],a:0,e:"Relokationsproblem: Programme nutzen absolute Adressen in Sprungbefehlen. Wenn an andere Stelle geladen → Adressen stimmen nicht. Lösung: Adressräume mit 2 Hardwareregistern. Basisregister: Beginn des Prozesses im Speicher. Limitregister: Länge des Prozesses. Jede Adresse + Basisregister automatisch addiert. Grenzregister verhindert Zugriff außerhalb."},
+{k:"Kap 6",q:"Was ist die MMU und was ist ein Page Fault?",o:["MMU: übersetzt virtuelle in physische Adressen mittels Seitentabelle (pro Prozess eigene) — Page Fault: Seite nicht im RAM, BS lädt von Festplatte","MMU = CPU","Page Fault = Programmfehler","MMU verwaltet Prozesse"],a:0,e:"MMU (Memory Management Unit) = Übersetzung von logischen (virtuellen) in physische Adressen. Methode: Seitentabelle. Für jeden Prozess eine eigene Seitentabelle! Seiten = Einheiten im virtuellen Adressraum. Seitenrahmen = Einheiten im physikalischen Speicher. Page Fault: Zugriff auf virtuelle Adresse die nicht im RAM → BS lädt Seite von Festplatte in RAM."},
+{"k": "Kap 1", "q": "Welche drei Hauptziele hat ein Betriebssystem laut ZF?", "o": ["Nutzerprogramme ausführen, Computer einfach benutzbar machen, Hardware effizient nutzen", "Nur Programme installieren, Dateien löschen, Internet bereitstellen", "CPU beschleunigen, RAM vergrößern, Festplatte formatieren", "Nur Sicherheit, Grafik und Netzwerk verwalten"], "a": 0, "e": "Das BS ist ein Vermittlerprogramm zwischen Nutzer und Hardware. Ziele: Nutzerprogramme ausführen und Probleme leichter lösen, den Computer einfach benutzbar machen und die Hardware effizient nutzen."},
+{"k": "Kap 1", "q": "Wie lautet die Computer-System-Struktur von unten nach oben?", "o": ["Hardware → Betriebssystem → Anwendungsprogramme → Nutzer", "Nutzer → Hardware → Betriebssystem → Programme", "Betriebssystem → Hardware → Nutzer → Programme", "Programme → Nutzer → Hardware → Betriebssystem"], "a": 0, "e": "Merksatz aus der ZF: Hardware → BS → Programme → Nutzer — von unten nach oben."},
+{"k": "Kap 1", "q": "Was will ein Single-User-System aus Sicht des Nutzers hauptsächlich?", "o": ["Komfort und Performance; Ressourcenteilung ist weniger wichtig", "Maximale Ressourcenteilung zwischen vielen Nutzern", "Keine Benutzeroberfläche", "Nur garantierte Echtzeit"], "a": 0, "e": "Single User: wants convenience and performance, doesn't care about resource sharing."},
+{"k": "Kap 1", "q": "Was ist bei Mainframe-Systemen besonders wichtig?", "o": ["Alle Nutzer gleichzeitig zufrieden halten", "Nur eine einzelne Person optimal bedienen", "Keine Ressourcen teilen", "Batterielaufzeit maximieren"], "a": 0, "e": "Mainframe: must keep all users happy simultaneously — viele Nutzer teilen sich ein großes System."},
+{"k": "Kap 1", "q": "Was beschreibt die Workstation-Perspektive?", "o": ["Eigene Ressourcen, aber zusätzliche Server-Ressourcen werden geteilt", "Keine eigenen Ressourcen", "Nur Batteriebetrieb", "Nur ein eingebettetes System ohne UI"], "a": 0, "e": "Workstation: own resources, but shares server resources."},
+{"k": "Kap 1", "q": "Worauf sind Handheld-Systeme laut ZF optimiert?", "o": ["Wenig Ressourcen, Usability und Batterielaufzeit", "Maximale Serverleistung", "Viele gleichzeitige Benutzer", "Direkte Programmierung in Maschinensprache"], "a": 0, "e": "Handheld: resource-poor, optimized for usability and battery life."},
+{"k": "Kap 1", "q": "Was ist typisch für Embedded-Systeme?", "o": ["Wenig bis keine Benutzeroberfläche, z. B. Auto oder Haushaltsgerät", "Immer großes Display und Tastatur", "Nur Desktop-Programme", "Nur für Smartphones"], "a": 0, "e": "Embedded: little to no user interface at all, Beispiele sind Cars und Appliances."},
+{"k": "Kap 1", "q": "Warum wird das Betriebssystem als Manager und Guard beschrieben?", "o": ["Es verteilt Ressourcen fair/effizient und verhindert Fehler bzw. unsachgemäße Nutzung", "Es ist nur ein Dateimanager", "Es ersetzt die Hardware vollständig", "Es startet nur Programme ohne Schutzfunktion"], "a": 0, "e": "Resource Allocator = Manager: wer bekommt was? Control Program = Guard: nichts soll schiefgehen, Fehler und unsachgemäße Nutzung werden verhindert."},
+{"k": "Kap 1", "q": "Was bedeutet Resource Allocator genauer?", "o": ["Das OS verwaltet CPU, Speicher und I/O und entscheidet zwischen konkurrierenden Anfragen", "Das OS schreibt Programme in Maschinensprache", "Das OS löscht alte Dateien automatisch", "Das OS gehört zur Hardware"], "a": 0, "e": "Resource Allocator: manages all resources such as CPU, Memory and I/O and decides between conflicting requests for efficient and fair resource use."},
+{"k": "Kap 1", "q": "Was bedeutet Control Program genauer?", "o": ["Es kontrolliert die Programmausführung und verhindert Fehler sowie unsachgemäße Nutzung", "Es ist nur ein Übersetzer", "Es verwaltet ausschließlich die Grafikkarte", "Es ist ein Anwendungsprogramm"], "a": 0, "e": "Control Program: controls execution of programs and prevents errors and improper use of the computer."},
+{"k": "Kap 1", "q": "Was kennzeichnet die 1. Generation von Betriebssystemen?", "o": ["Elektronenröhren, primitive Einzelrechner, kein BS, direkte Maschinensprache", "Transistoren, Lochkarten und Stapelverarbeitung", "PCs mit GUIs und Multitasking", "Smartphones mit Android und iOS"], "a": 0, "e": "1. Gen/Phase 1 (1945–1955): Elektronenröhren, primitive Einzelrechner/Prototypen, kein BS, direkte Programmierung in Maschinensprache."},
+{"k": "Kap 1", "q": "Was kennzeichnet die 2. Generation von Betriebssystemen?", "o": ["Transistoren, Großrechner, Lochkarten, primitive BS für sequentielle Stapelverarbeitung", "Elektronenröhren ohne Betriebssystem", "Integrierte Schaltkreise und UNIX", "Smartphones und iOS"], "a": 0, "e": "2. Gen/Phase 2 (1955–1965): Transistoren, Großrechner, Lochkarten, primitive BS regeln sequentielle Stapelverarbeitung von Jobs."},
+{"k": "Kap 1", "q": "Was bedeutet Multiprogrammierung in der 3. Generation historisch?", "o": ["Mehrere Jobs liegen gleichzeitig im Speicher und teilen sich die CPU", "Mehrere PCs werden über WLAN verbunden", "Ein Nutzer startet nur ein Programm", "Programme werden direkt in Maschinensprache eingegeben"], "a": 0, "e": "3. Generation: Multiprogrammierung bedeutet mehrere Jobs gleichzeitig im Speicher, sie teilen sich die CPU."},
+{"k": "Kap 1", "q": "Was bedeutet Spooling in der Geschichte der Betriebssysteme?", "o": ["Direktes Einlesen von Lochkarten und Speichern der Ausgabe auf Platten", "Prozessoren werden schneller getaktet", "RAM wird gelöscht", "Ein Smartphone startet mehrere Apps"], "a": 0, "e": "Spooling: direktes Einlesen von Lochkarten und Ausgabe auf Platten speichern."},
+{"k": "Kap 1", "q": "Was war MULTICS?", "o": ["Ein frühes BS für mehrere gleichzeitige Nutzer auf einem Großrechner", "Eine Windows-Version", "Ein Compiler für C", "Ein Smartphone-Betriebssystem"], "a": 0, "e": "MULTICS war ein Betriebssystem für mehrere gleichzeitige Nutzer auf einem Großrechner; eine abgespeckte Einzelversion wurde zu UNIX."},
+{"k": "Kap 1", "q": "Was kennzeichnet die 4. Generation von Betriebssystemen?", "o": ["Allzweck-PCs, MS-DOS, Windows, macOS, Linux, GUIs und Multitasking", "Elektronenröhren ohne BS", "Nur Lochkarten und Stapelverarbeitung", "Nur Android und iOS"], "a": 0, "e": "4. Generation ab ca. 1980: Allzweck-PCs in Massenproduktion, benutzerfreundliche BS für Low-Cost-Rechner, MS-DOS, Windows, macOS, Linux, GUIs, Multitasking."},
+{"k": "Kap 1", "q": "Was kennzeichnet die 5. Generation laut ZF?", "o": ["Spezielle Betriebssysteme für Smartphones wie Android, iOS und Windows Phone", "Nur Großrechner", "Nur Lochkarten", "Nur direkte Maschinensprache"], "a": 0, "e": "5. Generation ab ca. 1990: spezielle BS für Smartphones, z. B. Android, iOS, Windows Phone."},
+{"k": "Kap 1", "q": "Welche vier Hauptaufgaben macht ein Betriebssystem laut ZF?", "o": ["Abstraktion, Ressourcenverwaltung, API, Dateiverwaltung", "Nur BIOS, Compiler, Editor, Browser", "Nur CPU-Takt erhöhen und Programme installieren", "Nur Grafik, Audio, Spiele, Internet"], "a": 0, "e": "Vier Hauptaufgaben: Abstraktion, Ressourcenverwaltung, API als einheitliche Programmierschnittstelle und Dateiverwaltung."},
+{"k": "Kap 1", "q": "Was bedeutet Abstraktion beim Betriebssystem?", "o": ["Hardware-Komplexität verstecken und Ressourcen virtualisieren", "Hardware direkt vom Benutzer bedienen lassen", "Nur Dateien sortieren", "Nur Programme kompilieren"], "a": 0, "e": "Abstraktion: Das BS versteckt die Hardware-Komplexität und virtualisiert Ressourcen."},
+{"k": "Kap 1", "q": "Was macht die Ressourcenverwaltung des Betriebssystems?", "o": ["Sie teilt CPU, Speicher usw. Programmen zu und nimmt sie wieder weg", "Sie installiert ausschließlich Updates", "Sie ersetzt den Prozessor", "Sie löscht immer alle Prozesse"], "a": 0, "e": "Ressourcenverwaltung: teilt CPU und Speicher den Programmen zu und nimmt sie wieder weg."},
+{"k": "Kap 1", "q": "Was ist die API-Aufgabe des Betriebssystems?", "o": ["Eine einheitliche Programmierschnittstelle zur Verfügung stellen", "Nur Hardware reparieren", "Dateien physisch löschen", "RAM in SSD umwandeln"], "a": 0, "e": "API = Application Programming Interface: Das BS stellt eine einheitliche Programmierschnittstelle zur Verfügung."},
+{"k": "Kap 1", "q": "Warum gehört BIOS/UEFI nicht zum Betriebssystem?", "o": ["Es läuft davor; das BS verwaltet Ressourcen zur Laufzeit", "Es ist ein normales Anwendungsprogramm", "Es ist Teil von Word oder Chrome", "Es ist ein Compiler"], "a": 0, "e": "Zum Betriebssystem gehört nicht: BIOS bzw. UEFI. Das BS verwaltet Ressourcen zur Laufzeit; alles davor oder daneben gehört nicht dazu."},
+{"k": "Kap 1", "q": "Welche Beispiele nennt die ZF für BS-Kategorien?", "o": ["Mainframes, Server, PC, Echtzeit, Embedded, Smartphone, Smartcard", "Nur Windows und Linux", "Nur Browser und Office", "Nur Compiler und Editor"], "a": 0, "e": "BS-Kategorien aus der Tabelle: Mainframes, Server, PC, Echtzeit/RTOS, Embedded Linux/VxWorks, Smartphone, Smartcard."},
+{"k": "Kap 1", "q": "Was ist der Merksatz zu BS-Kategorien?", "o": ["Nicht jedes BS ist gleich — jeder Einsatzzweck braucht ein anderes BS", "Alle Betriebssysteme sind gleich", "Ein Smartphone braucht immer ein Mainframe-BS", "Ein PC-BS ist automatisch ein RTOS"], "a": 0, "e": "Merksatz: Nicht jedes BS ist gleich — jeder Einsatzzweck braucht ein anderes BS."},
+{"k": "Kap 1", "q": "Was bedeutet entziehbare Ressource?", "o": ["Eine Ressource wie CPU kann einem Prozess weggenommen werden", "Ein Drucker muss mitten im Druck immer weggenommen werden", "Eine Ressource darf nie geteilt werden", "Eine Datei kann nur vom BIOS genutzt werden"], "a": 0, "e": "Entziehbar vs. nicht entziehbar: CPU kann weggenommen werden; Drucker mitten im Druck eher nicht."},
+{"k": "Kap 1", "q": "Was bedeutet exklusiv vs. gemeinsam nutzbare Ressource?", "o": ["Drucker ist exklusiv, RAM ist gemeinsam nutzbar", "RAM ist exklusiv, Drucker ist immer gemeinsam", "Beides bedeutet dasselbe", "Nur Software kann exklusiv sein"], "a": 0, "e": "Exklusiv vs gemeinsam nutzbar: Drucker = exklusiv, RAM = gemeinsam nutzbar."},
+{"k": "Kap 1", "q": "Was regelt das BS bei Ressourcen laut ZF?", "o": ["Konfliktfreie Nutzung und Zuteilung über Scheduling-Algorithmen", "Nur die Farbe der Oberfläche", "Nur die Erstellung von PDFs", "Nur das BIOS-Update"], "a": 0, "e": "Das BS regelt die konfliktfreie Nutzung der Ressourcen und verwendet verschiedene Scheduling-Algorithmen für die Zuteilung."},
+{"k": "Kap 1", "q": "Was ist der Unterschied zwischen User-Space und Kernel-Space im Schutzkonzept?", "o": ["Prozesse laufen im User-Space, das BS im Kernel-Space mit vollem Hardwarezugriff", "Alle Programme laufen im Kernel-Space", "Das BS läuft im User-Space ohne Rechte", "User-Space hat mehr Rechte als Kernel-Space"], "a": 0, "e": "Prozesse laufen im User-Space, das BS läuft im Kernel-Space. Nur so ist Schutz zwischen Prozessen möglich — mit CPU-Unterstützung."},
+{"k": "Kap 1", "q": "Warum braucht Prozessschutz CPU-Unterstützung?", "o": ["Weil die CPU zwischen eingeschränktem User-Mode und privilegiertem Kernel-Mode unterscheiden muss", "Weil der Monitor heller sein muss", "Weil das BIOS alle Apps startet", "Weil Compiler schneller werden"], "a": 0, "e": "Der Schutz zwischen Prozessen funktioniert nur mit CPU-Unterstützung, weil privilegierte Zugriffe vom normalen User-Space getrennt werden müssen."},
+{"k": "Kap 1", "q": "Welche Systemcall-Beispiele nennt die ZF?", "o": ["open, read, clone", "print, scan, sort", "compile, edit, browse", "sleep, draw, click"], "a": 0, "e": "Unix-API-Beispiele: open = Datei öffnen, read = aus einem Dateideskriptor lesen, clone = Prozess kopieren."},
+{"k": "Kap 1", "q": "Was macht der Systemcall open?", "o": ["Eine Datei öffnen", "Einen Prozess kopieren", "Aus einem Dateideskriptor lesen", "Einen Interrupt priorisieren"], "a": 0, "e": "open: Datei öffnen."},
+{"k": "Kap 1", "q": "Was macht der Systemcall read?", "o": ["Aus einem Dateideskriptor lesen", "Eine Datei löschen", "Einen Prozess kopieren", "Einen Cache leeren"], "a": 0, "e": "read: aus einem Dateideskriptor lesen."},
+{"k": "Kap 1", "q": "Was macht der Systemcall clone?", "o": ["Einen Prozess kopieren", "Eine Datei öffnen", "Eine Festplatte spiegeln", "Einen Cache ersetzen"], "a": 0, "e": "clone: Prozess kopieren."},
+{"k": "Kap 2", "q": "Warum braucht man Hardware-Kenntnisse für Betriebssysteme?", "o": ["Weil BS sehr eng mit der Hardware zusammenarbeiten", "Weil BS gar nichts mit Hardware zu tun haben", "Nur um Farben im UI zu ändern", "Nur für Word und Chrome"], "a": 0, "e": "ZF: Da Betriebssysteme sehr eng mit der Hardware zusammenarbeiten, braucht man Hardware-Kenntnisse, um BS besser verstehen zu können."},
+{"k": "Kap 2", "q": "Wie sind Komponenten im Rechner grundsätzlich verbunden?", "o": ["Über einen oder mehrere Busse", "Nur über WLAN", "Nur über den Bildschirm", "Nur über die Festplatte"], "a": 0, "e": "Komponenten sind über einen bzw. mehrere Busse miteinander verbunden."},
+{"k": "Kap 2", "q": "Welche Beispiele nennt die ZF für parallele Busse?", "o": ["Parallel-ATA, ISA, Token Ring", "SATA, PCI-Express, USB 3.0", "Bluetooth, WLAN, LTE", "SSD, HDD, RAM"], "a": 0, "e": "Parallel: byteweise über mehrere Leitungen gleichzeitig. Beispiele: Parallel-ATA, ISA, Token Ring."},
+{"k": "Kap 2", "q": "Welche Beispiele nennt die ZF für serielle Busse?", "o": ["SATA, PCI-Express, USB 3.0, Thunderbolt", "Parallel-ATA, ISA, Token Ring", "BIOS, UEFI, Compiler", "RAM, ROM, Cache"], "a": 0, "e": "Seriell: nacheinander über eine einzige Leitung. Beispiele: SATA, PCI-Express, USB 3.0, Thunderbolt."},
+{"k": "Kap 2", "q": "Welche Nachteile hat serielle Übertragung laut ZF?", "o": ["Sie braucht Parallel/Seriell-Wandler; diese können teuer sein, besonders bei Echtzeit", "Sie braucht sehr große Steckverbinder", "Sie hat immer mehr Leitungen als parallel", "Sie kann keine Daten übertragen"], "a": 0, "e": "Nachteil seriell: braucht Parallel/Seriell-Wandler; diese Wandler sind teuer, besonders bei Echtzeit."},
+{"k": "Kap 2", "q": "Warum ist seriell trotzdem oft günstiger und kompakter?", "o": ["Weil weniger Leitungen gebraucht werden", "Weil alle Daten gelöscht werden", "Weil keine Controller nötig sind", "Weil der Prozessor nicht gebraucht wird"], "a": 0, "e": "Seriell = weniger Leitungen = günstiger und kompakter."},
+{"k": "Kap 2", "q": "Welche Busbreite kann der Datenbus laut ZF haben?", "o": ["8 bis 512 Bit", "Immer nur 1 Bit", "Nur 64 KB", "10 ms bis 10 ns"], "a": 0, "e": "Datenbus: Breite 8 bis 512 Bit. Je breiter der Bus, desto mehr Daten auf einmal → schneller."},
+{"k": "Kap 2", "q": "Was bestimmt die Größe des Adressbusses?", "o": ["Den adressierbaren Speicherraum / Adressraum", "Die Farbe des Bildschirms", "Die Anzahl der Drucker", "Die Dateigröße einer einzelnen Datei"], "a": 0, "e": "Adressbus-Größe abhängig von der Architektur: 8, 16, 32 oder 64 Bit — bestimmt den Adressraum."},
+{"k": "Kap 2", "q": "Was bedeutet bidirektional beim Datenbus?", "o": ["Daten können vom Prozessor zum RAM und zurück fließen", "Daten fließen nur zum Bildschirm", "Nur Adressen können gesendet werden", "Der Bus sendet nur in eine Richtung"], "a": 0, "e": "Datenbus ist bidirektional: Daten können vom Prozessor zum RAM und zurück fließen."},
+{"k": "Kap 2", "q": "Warum braucht gemeinsamer Speicher koordinierte Zugriffe?", "o": ["Damit keine Konflikte entstehen, wenn mehrere Geräte zugreifen wollen", "Damit RAM schneller als Register wird", "Damit das BIOS Programme kompiliert", "Damit Dateien immer gelöscht werden"], "a": 0, "e": "Der Speicher ist gemeinsam, deshalb muss der Zugriff koordiniert werden, damit es keine Konflikte gibt."},
+{"k": "Kap 2", "q": "Warum nutzen moderne Systeme mehrere spezialisierte Bussysteme?", "o": ["Weil ein einzelner gemeinsamer Bus nicht für alle Geräte/Anforderungen optimal ist", "Weil ein Computer keinen Bus braucht", "Weil alle Geräte dieselbe Geschwindigkeit haben", "Weil dadurch kein Speicher mehr nötig ist"], "a": 0, "e": "ZF: Moderne Systeme nutzen mehrere spezialisierte Bussysteme, nicht nur einen gemeinsamen Bus."},
+{"k": "Kap 2", "q": "Was braucht ein Computer architektonisch grundsätzlich?", "o": ["Instruktionen/Programme und Daten/Speicher", "Nur einen Drucker", "Nur eine Grafikkarte", "Nur ein Betriebssystem ohne Hardware"], "a": 0, "e": "Ein Computer braucht: 1. Instruktionen/Programme, 2. Daten/Speicher."},
+{"k": "Kap 2", "q": "Worin liegt der Hauptunterschied zwischen Harvard- und Von-Neumann-Architektur?", "o": ["In der Speicherorganisation von Programmen und Daten", "In der Farbe der Register", "In der Art der Tastatur", "In der Anzahl der Nutzer"], "a": 0, "e": "Der Unterschied liegt in der Speicherorganisation von Programmen und Daten: getrennt bei Harvard, gemeinsam bei Von Neumann."},
+{"k": "Kap 2", "q": "Welche Vertreter nennt die ZF für Harvard- und Von-Neumann-Architektur?", "o": ["Harvard: Atmel AVR; Von Neumann: Intel x86", "Harvard: Windows; Von Neumann: Linux", "Harvard: HDD; Von Neumann: SSD", "Harvard: Word; Von Neumann: Chrome"], "a": 0, "e": "Vertreter laut ZF: Harvard-Architektur: Atmel AVR. Von-Neumann-Architektur: Intel x86."},
+{"k": "Kap 2", "q": "Welche Operationen führt die ALU aus?", "o": ["Rechen- und Logikoperationen wie +, -, AND, OR", "Nur Dateien öffnen", "Nur Interrupts priorisieren", "Nur Daten auf Festplatte speichern"], "a": 0, "e": "ALU = Arithmetic Logic Unit. Sie führt Rechenoperationen und logische Operationen aus, z. B. +, -, AND, OR."},
+{"k": "Kap 2", "q": "Was kontrolliert die Control Unit laut ZF?", "o": ["Befehlszähler, Befehlsregister und Befehlsdecoder", "Nur die Dateinamen", "Nur die Tastaturbeleuchtung", "Nur den Drucker"], "a": 0, "e": "Control Unit/Steuerwerk steuert die Abarbeitung der Befehle und kontrolliert Befehlszähler, Befehlsregister und Befehlsdecoder."},
+{"k": "Kap 2", "q": "Was ist das Instruction Register?", "o": ["Spezialregister, das den aktuellen Befehl enthält", "Register mit Adresse des nächsten Befehls", "Ein Cache für Festplattendaten", "Ein Gerätetreiber"], "a": 0, "e": "Instruction Register enthält den aktuellen Befehl."},
+{"k": "Kap 2", "q": "Was macht der Befehlsdecoder?", "o": ["Er zerlegt Befehle in einzelne Schritte", "Er speichert den nächsten Befehl", "Er löscht den Cache", "Er steuert die Festplatte mechanisch"], "a": 0, "e": "Der Befehlsdecoder zerlegt Befehle in Schritte."},
+{"k": "Kap 2", "q": "Was beschreibt der Datenpfad in der CPU?", "o": ["Den Weg der Daten innerhalb der CPU zwischen Registern und ALU", "Den Weg einer Datei im Dateisystem", "Den Netzwerkweg zum Server", "Die Reihenfolge der Kapitel im Skript"], "a": 0, "e": "Der Datenpfad beschreibt den Weg der Daten innerhalb der CPU: Register ↔ ALU."},
+{"k": "Kap 2", "q": "Welche Aufgaben gehören zum Datenpfad?", "o": ["Register auswählen, Daten zur ALU schicken, Ergebnis in Register zurückschreiben", "Dateien löschen, Drucker starten, Fenster schließen", "Benutzer authentifizieren, Webseiten laden, E-Mails senden", "Festplatte formatieren, BIOS starten, UEFI aktualisieren"], "a": 0, "e": "Aufgaben im Datenpfad: Register auswählen, Daten zur ALU schicken, Ergebnis wieder in ein Register zurückschreiben."},
+{"k": "Kap 2", "q": "Welche Registerarten nennt die ZF?", "o": ["Allgemeine Register, Zeiger/Pointer, Instruction Pointer, Flags", "Nur RAM und ROM", "Nur Dateien und Ordner", "Nur Controller und Treiber"], "a": 0, "e": "Register im Prozessor: allgemeine Register für Berechnungen und Daten, Zeiger/Pointer auf Speicher, Instruction Pointer und Flags."},
+{"k": "Kap 2", "q": "Wofür sind allgemeine Register da?", "o": ["Für Berechnungen und Daten", "Zum Speichern aller Dateien dauerhaft", "Zum Starten des BIOS", "Zur Priorisierung von Interrupts"], "a": 0, "e": "Allgemeine Register dienen für Berechnungen und Daten."},
+{"k": "Kap 2", "q": "Was machen Zeiger/Pointer-Register?", "o": ["Sie zeigen auf Speicheradressen", "Sie zählen Nutzer", "Sie speichern Festplattenblöcke dauerhaft", "Sie ersetzen den Cache"], "a": 0, "e": "Zeiger/Pointer zeigen auf Speicher."},
+{"k": "Kap 2", "q": "Welche Bedeutung haben Flags bei Vergleichen und Sprungbefehlen?", "o": ["Sie bewerten ALU-Ergebnisse und steuern dadurch Programmverhalten", "Sie speichern Dateinamen", "Sie sind nur UI-Farben", "Sie ersetzen den Datenbus"], "a": 0, "e": "Flags werden nach ALU-Operationen gesetzt und sind wichtig für Vergleiche und Sprungbefehle; sie steuern das Programmverhalten."},
+{"k": "Kap 2", "q": "Was bedeutet das Z-Flag?", "o": ["Zero: Ergebnis ist 0", "Negative: Ergebnis ist negativ", "Overflow: Überlauf", "Carry: Übertrag"], "a": 0, "e": "Z (Zero): Ergebnis = 0."},
+{"k": "Kap 2", "q": "Was bedeutet das N-Flag?", "o": ["Negative: Ergebnis ist negativ", "Zero: Ergebnis ist 0", "Carry: Übertrag", "Overflow: Unterprogramm"], "a": 0, "e": "N (Negative): Ergebnis negativ."},
+{"k": "Kap 2", "q": "Was bedeutet das V-Flag?", "o": ["Overflow: Überlauf", "Zero: Ergebnis 0", "Negative: Ergebnis negativ", "Carry: Registeradresse"], "a": 0, "e": "V (Overflow): Überlauf."},
+{"k": "Kap 2", "q": "Was bedeutet das C-Flag?", "o": ["Carry: Übertrag", "Cache: Treffer", "Compiler: Übersetzer", "Control: Steuerwerk"], "a": 0, "e": "C (Carry): Übertrag."},
+{"k": "Kap 2", "q": "Was passiert im Instruction Fetch?", "o": ["CPU legt Adresse an den Adressbus, Speicher gibt den Befehl zurück", "ALU schreibt das Ergebnis ins Register", "Der Cache löscht LRU", "Der Interrupt-Controller priorisiert"], "a": 0, "e": "Instruction Fetch: CPU legt die Adresse an den Adressbus, der Speicher gibt den Befehl zurück."},
+{"k": "Kap 2", "q": "Was passiert im Instruction Decode?", "o": ["Die CPU entschlüsselt den Befehl", "Das Ergebnis wird in den RAM geschrieben", "Ein Gerät sendet ein Interrupt-Signal", "Der Prozess wird beendet"], "a": 0, "e": "Instruction Decode: CPU entschlüsselt den Befehl."},
+{"k": "Kap 2", "q": "Was passiert bei Fetch Operands?", "o": ["CPU holt die benötigten Werte aus Registern in interne Register", "CPU öffnet eine Datei", "HDD löscht einen Block", "DMA priorisiert einen Interrupt"], "a": 0, "e": "Fetch Operands: CPU holt die benötigten Werte aus den Registern in interne Register."},
+{"k": "Kap 2", "q": "Was passiert im Instruction Execute?", "o": ["Die ALU führt die Operation aus", "Der Program Counter wird gelöscht", "Der Nutzer wird authentifiziert", "Das Dateisystem wird formatiert"], "a": 0, "e": "Instruction Execute: ALU führt die Operation aus."},
+{"k": "Kap 2", "q": "Was passiert im Write Back?", "o": ["Das Ergebnis wird zurück ins Register geschrieben", "Der nächste Prozess wird gelöscht", "Der Cache wird auf Festplatte ausgelagert", "Der Drucker wird exklusiv gesperrt"], "a": 0, "e": "Write Back: Ergebnis wird zurück ins Register geschrieben."},
+{"k": "Kap 2", "q": "Was passiert im Schritt Nächste Instruktion?", "o": ["Die Control Unit inkrementiert den Instruction Pointer um einen festen Wert", "Der RAM wird flüchtig", "Der Cache wird immer geleert", "Die Festplatte wird gespiegelt"], "a": 0, "e": "Nächste Instruktion: Control Unit inkrementiert den Instruction Pointer/IP um einen festen Wert → nächster Befehl."},
+{"k": "Kap 2", "q": "Was ist Arbeitsspeicher/RAM?", "o": ["Random Access Memory, flüchtig: Daten weg wenn Strom weg", "Nicht-flüchtiger Magnetspeicher", "Ein Gerätetreiber", "Ein RAID-Level"], "a": 0, "e": "Arbeitsspeicher/RAM = Random Access Memory, flüchtig — Daten sind weg, wenn Strom weg ist."},
+{"k": "Kap 2", "q": "Was ist Sekundärspeicher?", "o": ["Nicht-flüchtige Erweiterung des RAM wie HDD oder SSD", "Ein CPU-Register", "Ein Flag", "Ein Systemcall"], "a": 0, "e": "Sekundärspeicher = Erweiterung des RAM, nicht flüchtig. HDD speichert magnetisch, SSD mit Halbleitertechnologie."},
+{"k": "Kap 2", "q": "Wie werden HDD-Daten gespeichert?", "o": ["Auf magnetisierbaren Scheiben", "In CPU-Registern", "Nur im Cache", "Als User-Space-Prozess"], "a": 0, "e": "HDD: Daten werden auf magnetisierbaren Scheiben gespeichert."},
+{"k": "Kap 2", "q": "Wie werden SSD-Daten gespeichert?", "o": ["Mit Halbleitertechnologie", "Auf magnetisierbaren Scheiben", "In Lochkarten", "Im Instruction Pointer"], "a": 0, "e": "SSD: Daten werden mit Halbleitertechnologie gespeichert."},
+{"k": "Kap 2", "q": "Nach welchen Eigenschaften wird Speicher laut ZF eingeteilt?", "o": ["Geschwindigkeit, Kosten, Flüchtigkeit", "Farbe, Gewicht, Lautstärke", "Nutzername, Passwort, E-Mail", "Kernel, User, Compiler"], "a": 0, "e": "Speicher wird eingeteilt nach Geschwindigkeit, Kosten und Flüchtigkeit."},
+{"k": "Kap 2", "q": "Was ist ein Cache laut ZF?", "o": ["Schneller Zwischenspeicher, der Werte einer langsameren Ressource vorhält", "Ein dauerhaftes Dateisystem", "Ein Interrupt-Handler", "Eine CPU ohne Register"], "a": 0, "e": "Cache = schneller Zwischenspeicher, der Werte einer langsameren Ressource vorhält."},
+{"k": "Kap 2", "q": "Was bedeutet: gute Caches entkoppeln 90–95% der Zugriffe?", "o": ["Viele Zugriffe werden direkt im schnellen Cache beantwortet statt auf die langsame Ressource zu gehen", "Alle Daten werden gelöscht", "CPU wird durch Drucker ersetzt", "RAM wird nicht mehr benötigt"], "a": 0, "e": "Gute Caches entkoppeln 90–95% der Zugriffe: die meisten Zugriffe landen im Cache und müssen nicht zur langsameren Ressource."},
+{"k": "Kap 2", "q": "Welche Ebenen können Caching nutzen?", "o": ["Hardware, Betriebssystem und Software", "Nur Hardware", "Nur Benutzeroberfläche", "Nur Drucker"], "a": 0, "e": "Caching funktioniert auf allen Ebenen: hardwareseitig, im Betriebssystem und in Software."},
+{"k": "Kap 2", "q": "Was ist beim Caching-Design entscheidend?", "o": ["Größe, Zusammenspiel der Caches, Caching-Algorithmen, Ersetzungs- und Schreibstrategie", "Nur die Farbe des Cache", "Nur der Dateiname", "Nur die Tastatur"], "a": 0, "e": "Entscheidend: Größe und Zusammenspiel der Caches sowie Caching-Algorithmen inklusive Ersetzungs- und Schreibstrategie."},
+{"k": "Kap 2", "q": "Welche zwei L2-Cache-Varianten bei Mehrkernprozessoren nennt die ZF?", "o": ["Gemeinsamer L2 für alle Kerne + je eigener L1; oder eigener L2 + eigener L1 pro Kern", "Nur ein L3 pro Prozess", "Kein L1 und kein L2", "L2 liegt immer auf der Festplatte"], "a": 0, "e": "Variante A: alle Kerne teilen einen gemeinsamen L2-Cache + jeder Kern hat eigenen L1. Variante B: jeder Kern hat eigenen separaten L2-Cache + eigenen L1."},
+{"k": "Kap 2", "q": "Warum sind Register schneller, aber viel kleiner als Cache?", "o": ["Je näher am Prozessor, desto schneller, aber auch teurer und kleiner", "Weil Register auf der Festplatte liegen", "Weil Cache gar kein Speicher ist", "Weil Register nicht elektrisch sind"], "a": 0, "e": "Merksatz: Je näher am Prozessor, desto schneller, aber auch teurer und kleiner."},
+{"k": "Kap 2", "q": "Was ist die ISA?", "o": ["Instruction Set Architecture / Befehlssatz eines Prozessors", "Ein Dateisystem", "Ein Gerätetreiber", "Ein Buskonflikt"], "a": 0, "e": "ISA = Befehlssatz / Instruction Set: Menge der elementaren Operationen, die ein Prozessor zur Verfügung stellt."},
+{"k": "Kap 2", "q": "Was ist ein Opcode?", "o": ["Bitfolge, die einen Befehl für den Prozessor eindeutig identifiziert", "Ein Dateiname", "Ein RAID-Stripe", "Ein Betriebssystemprozess"], "a": 0, "e": "Opcode = Bitfolge, die für den Prozessor den Befehl eindeutig identifiziert."},
+{"k": "Kap 2", "q": "Welche ISA-Operationskategorie beschreibt Kopieren von Register A nach Register B?", "o": ["Datenbewegung", "Binäre Operation", "Unäre Operation", "Journaling"], "a": 0, "e": "Datenbewegung: z. B. Kopieren von Register A in Register B."},
+{"k": "Kap 2", "q": "Was sind binäre Operationen im ISA-Kontext?", "o": ["Operationen mit zwei Operanden und einem Ergebnis, z. B. Addition/Subtraktion", "Operationen mit genau einem Operand wie Shift", "Nur Sprungbefehle", "Nur Dateizugriffe"], "a": 0, "e": "Binäre Operationen: 2 Operanden → 1 Ergebnis, z. B. Addition und Subtraktion."},
+{"k": "Kap 2", "q": "Was sind unäre Operationen im ISA-Kontext?", "o": ["Operationen mit einem Operanden, z. B. Shift oder Rotate", "Operationen mit zwei Operanden", "Nur Unterprogrammaufrufe", "Nur Datenübertragung per DMA"], "a": 0, "e": "Unäre Operationen: 1 Operand, z. B. Shift und Rotate."},
+{"k": "Kap 2", "q": "Welche ISA-Kategorie nutzt Sprungbefehle bei Bedingungen?", "o": ["Vergleiche und Verzweigungen", "Datenbewegung", "Caching", "RAID"], "a": 0, "e": "Vergleiche/Verzweigungen: Sprungbefehle bei Bedingungen."},
+{"k": "Kap 2", "q": "Welche weiteren ISA-Kategorien nennt die ZF?", "o": ["Prozeduraufrufe, Schleifensteuerung, Ein- und Ausgabe", "Nur BIOS und UEFI", "Nur FAT32 und NTFS", "Nur RAID 0 und RAID 1"], "a": 0, "e": "Weitere Kategorien: Prozeduraufrufe, Schleifensteuerung und Ein-/Ausgabe, z. B. durch Interrupts."},
+{"k": "Kap 3", "q": "Warum muss das BS auf Signale angeschlossener Hardware reagieren?", "o": ["Weil Geräte wie Maus, USB oder Drucker Ereignisse auslösen können", "Weil nur so Dateien größer werden", "Weil RAM sonst flüchtig wird", "Weil Compiler sonst nicht starten"], "a": 0, "e": "Das BS muss auf Signale angeschlossener Hardware reagieren, z. B. Maus, USB, Drucker."},
+{"k": "Kap 3", "q": "Was sind blockorientierte Geräte?", "o": ["Geräte mit Daten in fester Blockgröße, einzelne Blöcke adressierbar", "Geräte mit nicht adressierbarem Zeichenstrom", "Nur Prozessorregister", "Nur Anwendungsprogramme"], "a": 0, "e": "Blockorientierte Geräte: Festplatten, DVDs, USB-Sticks. Daten nur in Einheiten fester Blockgröße; Blöcke sind einzeln adressierbar."},
+{"k": "Kap 3", "q": "Was sind zeichenorientierte Geräte?", "o": ["Geräte mit Daten als Stream von Zeichen/E-A, nicht adressierbar", "Geräte mit einzeln adressierbaren Blöcken", "Nur RAM-Bausteine", "Nur CPU-Register"], "a": 0, "e": "Zeichenorientierte Geräte: Maus, Drucker, Netzwerkkarten. Daten als Stream von Zeichen-Ein-/Ausgabe, nicht adressierbar."},
+{"k": "Kap 3", "q": "Was ist ein Puffer im Kontext eines Controllers?", "o": ["Speicherbereich im Controller, wo Bits gesammelt werden bevor sie als Block weitergegeben werden", "Eine Datei auf der Festplatte", "Ein Prozesszustand", "Ein RAID-Level"], "a": 0, "e": "Puffer = Speicherbereich innerhalb des Controllers, wo Bits gesammelt werden, bevor sie als Block weitergegeben werden."},
+{"k": "Kap 3", "q": "Was ist ein Gerätetreiber?", "o": ["Geräteabhängige Steuersoftware, vom Gerätehersteller programmiert", "Ein Hardware-Bus", "Ein Nutzerprogramm ohne Rechte", "Ein Dateisystem"], "a": 0, "e": "Device Driver/Gerätetreiber = geräteabhängige Steuersoftware, vom Gerätehersteller programmiert."},
+{"k": "Kap 3", "q": "Welche drei Aufgaben hat ein Gerätetreiber?", "o": ["Lese-/Schreibbefehle ausführen, Hardware initialisieren, Energie-/Fehler-/Ereignisverwaltung", "Nur Texte formatieren, Bilder anzeigen, Internet öffnen", "Nur CPU rechnen lassen", "Nur Dateien verschlüsseln"], "a": 0, "e": "3 Aufgaben: Lese-/Schreibbefehle ausführen, Hardware initialisieren, Energie-/Fehler-/Ereignisverwaltung."},
+{"k": "Kap 3", "q": "Was ist ein Interrupt kurz definiert?", "o": ["Vorübergehende Unterbrechung eines laufenden Programms durch ein Ereignis für zeitkritische Bearbeitung", "Dauerhafte Löschung eines Programms", "Ein Dateisystemfehler", "Ein Cache-Hit"], "a": 0, "e": "Interrupt = vorübergehende Unterbrechung eines laufenden Programms durch ein Ereignis, um einen zeitkritischen Vorgang abzuarbeiten."},
+{"k": "Kap 3", "q": "Was macht der Interrupt-Controller?", "o": ["Er entscheidet Reihenfolge und Priorität bei mehreren gleichzeitig auftretenden Interrupts", "Er speichert Dateien dauerhaft", "Er führt ALU-Operationen aus", "Er übersetzt virtuelle Adressen"], "a": 0, "e": "Interrupt-Controller entscheidet die Reihenfolge und Priorität bei mehreren gleichzeitig auftretenden Interrupts."},
+{"k": "Kap 3", "q": "Was ist ein Interrupt-Handler?", "o": ["Assembler-Code im Hauptspeicher, der bei einem Interrupt ausgeführt wird", "Ein User-Space-Texteditor", "Ein RAID-Stripe", "Eine Dateizuordnungstabelle"], "a": 0, "e": "Interrupt-Handler = Assembler-Code, der bei Interrupt ausgeführt wird und im Hauptspeicher liegt."},
+{"k": "Kap 3", "q": "Was ist das allgemeine Vorgehen bei einem Interrupt?", "o": ["Thread anhalten, Status speichern, Handler ausführen, unterbrochenen Thread fortsetzen", "Datei löschen, RAM formatieren, PC ausschalten, neu starten", "Cache leeren, RAID spiegeln, Drucker stoppen, Programm löschen", "Compiler starten, Editor öffnen, Datei speichern, Browser schließen"], "a": 0, "e": "Allgemeines Vorgehen: Prozessor hält den laufenden Thread an, speichert den Thread-Status, führt den Interrupt-Handler aus und setzt den unterbrochenen Thread fort."},
+{"k": "Kap 3", "q": "Welche drei Interrupt-Quellen nennt die ZF?", "o": ["Hardware, Prozessor, Software", "RAM, Cache, HDD", "FAT32, NTFS, ext4", "CPU, Maus, Monitor"], "a": 0, "e": "3 Quellen: Hardware-Unterbrechungsanforderung von Gerät an Prozessor; Prozessor-Unterbrechungsanforderung; Software-Unterbrechungsanweisung."},
+{"k": "Kap 3", "q": "Was bedeutet RAID vollständig?", "o": ["Mehrere physische Festplatten werden zu einer logischen Einheit zusammengefasst", "Ein einzelnes Register wird zu Cache", "Ein Prozess kopiert sich selbst", "Ein Systemcall öffnet Dateien"], "a": 0, "e": "RAID: mehrere physische Festplatten zu einer logischen Einheit zusammengefasst — für Datensicherung und schnelleren Zugriff."},
+{"k": "Kap 3", "q": "Welche zwei Hauptvorteile hat RAID laut ZF?", "o": ["Datensicherung durch Redundanz und schnellerer Festplattenzugriff", "Mehr RAM und bessere Grafik", "Weniger Prozesse und mehr Compiler", "Keine Interrupts mehr"], "a": 0, "e": "Vorteile: Datensicherung durch Redundanz und schnellerer Festplattenzugriff."},
+{"k": "Kap 3", "q": "Was ist Parität bei RAID?", "o": ["Redundanzinformation zur Fehlerkorrektur", "Eine Festplattenfarbe", "Ein Prozesszustand", "Ein CPU-Register"], "a": 0, "e": "Parität bei RAID = Redundanzinformation zur Fehlerkorrektur."},
+{"k": "Kap 3", "q": "Wie wird Parität bei RAID realisiert?", "o": ["Durch XOR-Funktion, z. B. bei RAID 4, 5 und 6", "Durch HTML und CSS", "Durch Systemcalls open/read", "Durch den Program Counter"], "a": 0, "e": "Parität wird durch XOR-Funktion realisiert, verwendet bei RAID 4, 5 und 6."}];
+
+const LETTERS = ['A','B','C','D'];
+let qs=[],cur=0,score=0,ans=false,sel='Alle',missed=[];
+
+function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function esc(s){return String(s).replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));}
+function chapters(){return['Alle',...new Set(Q.map(q=>q.k))];}
+
+function init(){
+  const pool=sel==='Alle'?Q:Q.filter(q=>q.k===sel);
+  qs=shuffle(pool);cur=0;score=0;ans=false;missed=[];
+  document.getElementById('sc').textContent=0;
+  document.getElementById('tc').textContent=qs.length;
+  renderCB();renderQ();
+}
+
+function renderCB(){
+  const b=document.getElementById('cb');
+  b.innerHTML=chapters().map(c=>`<button class="cb ${c===sel?(c==='Alle'?'all':'act'):''}" onclick="setSel('${esc(c)}')">${esc(c)}</button>`).join('');
+}
+
+function setSel(c){sel=c;init();}
+
+function renderQ(){
+  const c=document.getElementById('qc');
+  if(cur>=qs.length){renderRes();return;}
+  const q=qs[cur];
+  document.getElementById('pf').style.width=Math.round(cur/qs.length*100)+'%';
+  const so=shuffle(q.o.map((o,i)=>({t:o,i})));
+  c.innerHTML=`<div class="card">
+    <div class="badge">${esc(q.k)} &nbsp;·&nbsp; ${cur+1} / ${qs.length}</div>
+    <div class="q">${esc(q.q)}</div>
+    <div class="opts" id="os">
+      ${so.map((o,i)=>`<button class="opt" onclick="ans_q(${i},${o.i},${q.a})" id="o${i}">
+        <span class="opt-l">${LETTERS[i]}</span>${esc(o.t)}
+      </button>`).join('')}
+    </div>
+    <div id="fb" style="display:none"></div>
+    <div class="acts" id="ac" style="display:none">
+      <button class="btn p" onclick="nxt()">Nächste Frage &nbsp;→</button>
+    </div>
+  </div>`;
+  window._so=so;
+}
+
+function ans_q(clicked,origIdx,ca){
+  if(ans)return;
+  ans=true;
+  const ok=origIdx===ca;
+  const q=qs[cur];
+  document.querySelectorAll('.opt').forEach((b,i)=>{
+    b.disabled=true;
+    if(window._so[i].i===ca) b.classList.add('ok');
+    else if(i===clicked&&!ok) b.classList.add('no');
+  });
+  const fb=document.getElementById('fb');
+  fb.style.display='block';
+  fb.className='fb '+(ok?'ok':'no');
+  fb.textContent=(ok?'✓  Richtig!  ':'✗  Falsch.  ')+q.e;
+  document.getElementById('ac').style.display='flex';
+  if(ok){score++;document.getElementById('sc').textContent=score;}
+  else missed.push(q);
+}
+
+function nxt(){ans=false;cur++;renderQ();}
+
+function renderRes(){
+  document.getElementById('pf').style.width='100%';
+  const pct=Math.round(score/qs.length*100);
+  const msg=pct>=80?'Prüfungsreif!':pct>=60?'Gut! Noch etwas üben.':'Weitermachen — du schaffst das!';
+  const col=pct>=80?'#10b981':pct>=60?'#f59e0b':'#ef4444';
+  const r=52,cx=64,cy=64,circ=2*Math.PI*r;
+  const dash=circ*(pct/100);
+  const ring=`<svg class="res-ring" width="128" height="128" viewBox="0 0 128 128">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="8"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="8"
+      stroke-dasharray="${dash} ${circ}" stroke-dashoffset="${circ/4}"
+      stroke-linecap="round"/>
+    <text x="${cx}" y="${cy-6}" text-anchor="middle" dominant-baseline="middle"
+      fill="#ededff" font-size="20" font-weight="800" font-family="Inter,system-ui">${score}/${qs.length}</text>
+    <text x="${cx}" y="${cy+14}" text-anchor="middle" dominant-baseline="middle"
+      fill="${col}" font-size="13" font-weight="700" font-family="Inter,system-ui">${pct}%</text>
+  </svg>`;
+  const mh=missed.length>0?`<div class="ms"><h3>Falsch beantwortet (${missed.length})</h3>${missed.map(q=>`<div class="mi"><strong>${esc(q.k)}: ${esc(q.q)}</strong>${esc(q.e)}</div>`).join('')}</div>`:'';
+  document.getElementById('qc').innerHTML=`<div class="card res">${ring}
+    <div class="rm">${msg}</div>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+      <button class="btn p" onclick="init()">Nochmal</button>
+      <button class="btn" onclick="rev()">Nur Falsche</button>
+    </div>${mh}</div>`;
+}
+
+function rev(){
+  if(!missed.length)return;
+  qs=shuffle(missed);cur=0;score=0;ans=false;missed=[];
+  document.getElementById('sc').textContent=0;
+  document.getElementById('tc').textContent=qs.length;
+  renderQ();
+}
+
+init();
+</script>
+</body>
+</html>
